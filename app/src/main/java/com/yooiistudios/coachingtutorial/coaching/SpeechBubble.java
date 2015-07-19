@@ -21,6 +21,8 @@ import android.widget.TextView;
  *  말풍선 뷰
  */
 public class SpeechBubble extends FrameLayout {
+    public enum Direction { UPWARD, DOWNWARD }
+
     private static final int STROKE_COLOR = Color.parseColor("#22CCCCCC");
 //    private static final int STROKE_COLOR = Color.CYAN;
     private static final int BG_COLOR = Color.WHITE;
@@ -41,7 +43,9 @@ public class SpeechBubble extends FrameLayout {
     private float mStrokeWidth;
     private float mHalfOfTriangleWidth;
     private float mTriangleHeight;
+    private float mTriangleCenterXRatio = 0.5f;
     private float mTriangleCenterX;
+    private Direction mDirection = Direction.UPWARD;
     private int mMessagePadding;
 
     public SpeechBubble(Context context) {
@@ -65,6 +69,29 @@ public class SpeechBubble extends FrameLayout {
         init();
     }
 
+    public void setDirection(Direction direction) {
+        mDirection = direction;
+        calculateOutlinePathWhenPossible();
+        refreshMessageViewMargins();
+        invalidate();
+    }
+
+    public void setTriangleCenterXRatio(float ratio) {
+        mTriangleCenterXRatio = ratio;
+        calculateOutlinePathWhenPossible();
+        invalidate();
+    }
+
+    /**
+     * Returns current center x of the triangle. If you want to get this value after
+     * the method {@link #setTriangleCenterXRatio(float ratio) setTriangleCenterXRatio},
+     * you must wait for layout invalidates.
+     * @return
+     */
+    public float getTriangleCenterX() {
+        return mTriangleCenterX;
+    }
+
     public void setMessage(CharSequence message) {
         mMessageView.setText(message);
     }
@@ -75,8 +102,15 @@ public class SpeechBubble extends FrameLayout {
 
     public void setMessagePadding(int padding) {
         mMessagePadding = padding;
-        setMessageViewMargins();
-//        applyMessagePadding();
+        refreshMessageViewMargins();
+    }
+
+    public void setMessageViewMaxWidth(int width) {
+        mMessageView.setMaxWidth(width);
+    }
+
+    public void setMessageViewMaxHeight(int height) {
+        mMessageView.setMaxHeight(height);
     }
 
     private void init() {
@@ -126,7 +160,7 @@ public class SpeechBubble extends FrameLayout {
 //        applyMessagePadding();
         LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         mMessageView.setLayoutParams(lp);
-        setMessageViewMargins();
+        refreshMessageViewMargins();
         addView(mMessageView);
     }
 
@@ -143,10 +177,26 @@ public class SpeechBubble extends FrameLayout {
         int width = w - widthPadding;
         int height = h - heightPadding;
 
-        mTriangleCenterX = getPaddingLeft() + width / 2;
         setDrawBound(width, height);
+        refreshMessageViewMargins();
+        calculateOutlinePath(width);
+    }
+
+    private void calculateOutlinePathWhenPossible() {
+        if (getWidth() > 0) {
+            int widthPadding = getPaddingLeft() + getPaddingRight();
+            int width = getWidth() - widthPadding;
+            calculateOutlinePath(width);
+        }
+    }
+
+    private void calculateOutlinePath(int width) {
+        mTriangleCenterX = calculateTriangleCenterX(width);
         setOutlinePath();
-        setMessageViewMargins();
+    }
+
+    private float calculateTriangleCenterX(int width) {
+        return getPaddingLeft() + width * mTriangleCenterXRatio;
     }
 
     private void setDrawBound(int width, int height) {
@@ -157,15 +207,36 @@ public class SpeechBubble extends FrameLayout {
     }
 
     private void setOutlinePath() {
-        RectF triangleBoundRect = new RectF(
-                mTriangleCenterX - mHalfOfTriangleWidth,
-                mDrawBound.bottom - mTriangleHeight,
-                mTriangleCenterX + mHalfOfTriangleWidth,
-                mDrawBound.bottom
-        );
-
+        RectF triangleBoundRect = new RectF();
         RectF messageRect = new RectF(mDrawBound);
-        messageRect.bottom -= triangleBoundRect.height();
+
+        switch (mDirection) {
+            case DOWNWARD:
+                triangleBoundRect.set(
+                        mTriangleCenterX - mHalfOfTriangleWidth,
+                        mDrawBound.top,
+                        mTriangleCenterX + mHalfOfTriangleWidth,
+                        mDrawBound.top + mTriangleHeight
+                );
+                messageRect.top += triangleBoundRect.height();
+                break;
+            case UPWARD:
+            default:
+                triangleBoundRect.set(
+                        mTriangleCenterX - mHalfOfTriangleWidth,
+                        mDrawBound.bottom - mTriangleHeight,
+                        mTriangleCenterX + mHalfOfTriangleWidth,
+                        mDrawBound.bottom
+                );
+                messageRect.bottom -= triangleBoundRect.height();
+                break;
+        }
+//        RectF triangleBoundRect = new RectF(
+//                mTriangleCenterX - mHalfOfTriangleWidth,
+//                mDrawBound.bottom - mTriangleHeight,
+//                mTriangleCenterX + mHalfOfTriangleWidth,
+//                mDrawBound.bottom
+//        );
         RectF messageInnerRect = new RectF(messageRect);
         messageInnerRect.inset(mRectRoundRadius, mRectRoundRadius);
         RectF ovalInboundRect = new RectF(messageInnerRect);
@@ -183,25 +254,35 @@ public class SpeechBubble extends FrameLayout {
         mOutline.reset();
         mOutline.moveTo(messageRect.left, messageInnerRect.top);
         mOutline.arcTo(leftTopArcRect, 180, 90);
+        // triangle(on downward)
+        if (mDirection.equals(Direction.DOWNWARD)) {
+            mOutline.lineTo(triangleBoundRect.left, triangleBoundRect.bottom);
+            mOutline.lineTo(triangleBoundRect.centerX(), triangleBoundRect.top);
+            mOutline.lineTo(triangleBoundRect.right, triangleBoundRect.bottom);
+        }
         mOutline.lineTo(messageInnerRect.right, messageRect.top);
         mOutline.arcTo(rightTopArcRect, 270, 90);
         mOutline.lineTo(messageRect.right, messageInnerRect.bottom);
         mOutline.arcTo(rightBottomArcRect, 0, 90);
-
-        // triangle
-        mOutline.lineTo(triangleBoundRect.right, triangleBoundRect.top);
-        mOutline.lineTo(triangleBoundRect.centerX(), triangleBoundRect.bottom);
-        mOutline.lineTo(triangleBoundRect.left, triangleBoundRect.top);
+        // triangle(on upward)
+        if (mDirection.equals(Direction.UPWARD)) {
+            mOutline.lineTo(triangleBoundRect.right, triangleBoundRect.top);
+            mOutline.lineTo(triangleBoundRect.centerX(), triangleBoundRect.bottom);
+            mOutline.lineTo(triangleBoundRect.left, triangleBoundRect.top);
+        }
         mOutline.lineTo(messageInnerRect.left, messageRect.bottom);
-
         mOutline.arcTo(leftBottomArcRect, 90, 90);
         mOutline.close();
     }
 
-    private void setMessageViewMargins() {
+    private void refreshMessageViewMargins() {
         LayoutParams lp = (LayoutParams)mMessageView.getLayoutParams();
         int radius = (int) mRectRoundRadius + mMessagePadding;
-        lp.setMargins(radius, radius, radius, radius + (int) mTriangleHeight);
+        if (mDirection.equals(Direction.UPWARD)) {
+            lp.setMargins(radius, radius, radius, radius + (int) mTriangleHeight);
+        } else {
+            lp.setMargins(radius, radius + (int) mTriangleHeight, radius, radius);
+        }
         mMessageView.setLayoutParams(lp);
     }
 

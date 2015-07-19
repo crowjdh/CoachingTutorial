@@ -78,7 +78,7 @@ public class Coach {
             public boolean onPreDraw() {
                 mCoachCover.getViewTreeObserver().removeOnPreDrawListener(this);
 
-                mMaxSpeechBubbleSize.x = (int) (mCoachCover.getWidth() * 0.9);
+                mMaxSpeechBubbleSize.x = (int) (mCoachCover.getWidth() * 0.5);
                 mMaxSpeechBubbleSize.y = (int) (mCoachCover.getWidth() * 0.6);
 
                 coachNext();
@@ -154,22 +154,8 @@ public class Coach {
     }
 
     private void adjustSpeechBubbleOnLayoutFix(TargetSpec targetSpec, RectF holeRect, SpeechBubble bubble) {
-        CoachCover.LayoutParams lp = (CoachCover.LayoutParams) bubble.getLayoutParams();
-        if (bubble.getWidth() >= mCoachCover.getWidth()) {
-            lp.width = mMaxSpeechBubbleSize.x;
-            lp.leftMargin = 0;
-        } else {
-            lp.leftMargin = (int) getBubbleLeft(targetSpec, holeRect, bubble);
-        }
-
-        if (bubble.getHeight() > mCoachCover.getHeight()) {
-            lp.height = mMaxSpeechBubbleSize.y;
-            lp.topMargin = 0;
-        } else {
-            lp.topMargin = (int) getBubbleTop(targetSpec, holeRect, bubble);
-        }
-
-        bubble.setLayoutParams(lp);
+        adjustBubbleHorizontally(holeRect, bubble);
+        adjustBubbleVertically(targetSpec, holeRect, bubble);
     }
 
     @NonNull
@@ -179,6 +165,17 @@ public class Coach {
         final SpeechBubble bubble = new SpeechBubble(getActivity());
         bubble.setTag(TAG_SPEECH_BUBBLE);
         bubble.setMessage(targetSpec.message);
+        SpeechBubble.Direction direction =
+                targetSpec.direction.verticalBias.equals(TargetSpec.Direction.VerticalBias.TOP)
+                ? SpeechBubble.Direction.UPWARD : SpeechBubble.Direction.DOWNWARD;
+        bubble.setDirection(direction);
+        bubble.setMessageViewMaxWidth(mMaxSpeechBubbleSize.x);
+        bubble.setMessageViewMaxHeight(mMaxSpeechBubbleSize.y);
+        bubble.setTriangleCenterXRatio(getSpeechBubbleApexXRatio(targetSpec));
+//        if (true) {
+//            bubble.setPadding(75, 0, 15, 0);
+//            bubble.setBackgroundColor(Color.CYAN);
+//        }
         CoachCover.LayoutParams lp = new CoachCover.LayoutParams(
                 CoachCover.LayoutParams.WRAP_CONTENT,
                 CoachCover.LayoutParams.WRAP_CONTENT
@@ -194,30 +191,39 @@ public class Coach {
         }
     }
 
-    private float getBubbleLeft(TargetSpec targetSpec, RectF holeRect, SpeechBubble bubble) {
-        float bubbleLeft;
+    private float getSpeechBubbleApexXRatio(TargetSpec targetSpec) {
+        float apexXRatio;
         switch (targetSpec.direction.horizontalBias) {
             case CENTER:
-                bubbleLeft = holeRect.centerX() - bubble.getWidth() / 2;
+                apexXRatio = 0.5f;
                 break;
             case RIGHT:
-                bubbleLeft = holeRect.right;
+                apexXRatio = 0.2f;
                 break;
             case LEFT:
             default:
-                bubbleLeft = holeRect.left - bubble.getWidth();
+                apexXRatio = 0.8f;
                 break;
         }
 
-        return Math.max(bubbleLeft, 0);
+        return apexXRatio;
     }
 
-    private float getBubbleTop(TargetSpec targetSpec, RectF holeRect, SpeechBubble bubble) {
+    private void adjustBubbleHorizontally(RectF holeRect, SpeechBubble bubble) {
+        CoachCover.LayoutParams lp = (CoachCover.LayoutParams) bubble.getLayoutParams();
+        float bubbleLeft = holeRect.centerX() - bubble.getTriangleCenterX();
+
+        lp.leftMargin = Math.max((int) bubbleLeft, 0);
+        bubble.setLayoutParams(lp);
+    }
+
+    private void adjustBubbleVertically(TargetSpec targetSpec, RectF holeRect, SpeechBubble bubble) {
+        CoachCover.LayoutParams lp = (CoachCover.LayoutParams) bubble.getLayoutParams();
         float bubbleTop;
         switch (targetSpec.direction.verticalBias) {
-            case CENTER:
-                bubbleTop = holeRect.centerY() - bubble.getHeight() / 2;
-                break;
+//                case CENTER:
+//                    bubbleTop = holeRect.centerY() - bubble.getHeight() / 2;
+//                    break;
             case BOTTOM:
                 bubbleTop = holeRect.bottom;
                 break;
@@ -227,6 +233,7 @@ public class Coach {
                 break;
         }
 
-        return Math.max(bubbleTop, 0);
+        lp.topMargin = Math.max((int) bubbleTop, 0);
+        bubble.setLayoutParams(lp);
     }
 }

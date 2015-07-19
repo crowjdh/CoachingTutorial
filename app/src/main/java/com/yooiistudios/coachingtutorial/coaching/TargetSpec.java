@@ -15,9 +15,9 @@ public class TargetSpec {
         TOP(VerticalBias.TOP, HorizontalBias.CENTER),
         TOP_RIGHT(VerticalBias.TOP, HorizontalBias.RIGHT),
 
-        CENTER_LEFT(VerticalBias.CENTER, HorizontalBias.LEFT),
+//        CENTER_LEFT(VerticalBias.CENTER, HorizontalBias.LEFT),
 //        CENTER(VerticalBias.CENTER, HorizontalBias.CENTER),
-        CENTER_RIGHT(VerticalBias.CENTER, HorizontalBias.RIGHT),
+//        CENTER_RIGHT(VerticalBias.CENTER, HorizontalBias.RIGHT),
 
         BOTTOM_LEFT(VerticalBias.BOTTOM, HorizontalBias.LEFT),
         BOTTOM(VerticalBias.BOTTOM, HorizontalBias.CENTER),
@@ -32,7 +32,7 @@ public class TargetSpec {
         }
 
         public enum VerticalBias {
-            TOP, CENTER, BOTTOM
+            TOP/*, CENTER*/, BOTTOM
         }
 
         public enum HorizontalBias {

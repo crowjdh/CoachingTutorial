@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         TargetSpec targetSpec = new TargetSpec.Builder(mRightTopView)
                 .setHoleType(HoleType.INSCRIBE)
                 .setDirection(TargetSpec.Direction.BOTTOM_RIGHT)
-                .setMessage("The gray fox")
+                .setMessage("The quick gray fox jumps over the lazy dog.")
                 .build();
         specs.add(targetSpec);
         specs.add(new TargetSpec.Builder(mBottomCenterView).build());
