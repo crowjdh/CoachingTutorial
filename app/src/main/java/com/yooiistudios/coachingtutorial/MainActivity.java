@@ -1,9 +1,12 @@
 package com.yooiistudios.coachingtutorial;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.yooiistudios.coachingtutorial.coaching.Coach;
@@ -14,6 +17,8 @@ import com.yooiistudios.coachingtutorial.coaching.TargetSpecs;
 public class MainActivity extends AppCompatActivity {
     private RelativeLayout mRootView;
     private SpeechBubble mBubble;
+    private View mRightTopView;
+    private View mBottomCenterView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
         mRootView = (RelativeLayout) findViewById(R.id.root);
         mBubble = (SpeechBubble) findViewById(R.id.bubble);
+        mRightTopView = findViewById(R.id.right_top);
+        mBottomCenterView = findViewById(R.id.bottom_center);
 
 //        CoachCover cover = new CoachCover(this);
 ////        cover.makeHoleAt(new RectF(300, 100, 500, 200), CoachCover.HoleType.INSCRIBE);
@@ -34,9 +41,34 @@ public class MainActivity extends AppCompatActivity {
 //        mBubble.bringToFront();
 
         TargetSpecs specs = new TargetSpecs();
-        specs.add(new TargetSpec.Builder(mRootView).build());
-        specs.add(new TargetSpec.Builder(mRootView).build());
+        specs.add(new TargetSpec.Builder(mRightTopView).build());
+        specs.add(new TargetSpec.Builder(mBottomCenterView).build());
         Coach.start(this, specs);
+
+//        mRootView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//            @Override
+//            public boolean onPreDraw() {
+//                test();
+//                return true;
+//            }
+//        });
+    }
+
+    private void test() {
+        View parent = findViewById(R.id.parent);
+        View child = findViewById(R.id.child);
+
+        Rect rect = new Rect();
+
+        parent.getGlobalVisibleRect(rect);
+        Log.i("qwerasdf", "parent - getGlobalVisibleRect: " + rect.flattenToString());
+        parent.getLocalVisibleRect(rect);
+        Log.i("qwerasdf", "parent - getLocalVisibleRect: " + rect.flattenToString());
+
+        child.getGlobalVisibleRect(rect);
+        Log.i("qwerasdf", "child  - getGlobalVisibleRect: " + rect.flattenToString());
+        child.getLocalVisibleRect(rect);
+        Log.i("qwerasdf", "child  - getLocalVisibleRect: " + rect.flattenToString());
     }
 
     @Override

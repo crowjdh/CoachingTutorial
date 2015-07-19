@@ -17,7 +17,13 @@
         android:layout_height="100dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:layout_marginTop="150dp"
+        android:layout_marginRight="150dp"
+        android:layout_marginEnd="150dp"
         android:background="#00ff00"/>
+    <!--
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" -->
 
     <View
         android:id="@+id/bottom_center"
@@ -25,11 +31,24 @@
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="150dp"
         android:background="#ff0000"/>
 
     <com.yooiistudios.coachingtutorial.coaching.SpeechBubble
         android:id="@+id/bubble"
         android:layout_width="200dp"
         android:layout_height="200dp"/>
+
+    <RelativeLayout
+        android:id="@+id/parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="100px"
+        android:layout_marginTop="100px">
+        <View
+            android:id="@+id/child"
+            android:layout_width="100px"
+            android:layout_height="100px" />
+    </RelativeLayout>
 
 </RelativeLayout>
