@@ -24,12 +24,16 @@ public class CoachCover extends View {
         CIRCUMSCRIBE
     }
     private static final int BG_COLOR = Color.parseColor("#bb000000");
+    private static final boolean DEBUG = true;
 
     private Paint mBackgroundPaint = new Paint();
     private RectF mDrawBound = new RectF();
     private RectF mHoleRect = new RectF();
     private Path mInverseHolePath = new Path();
     private HoleType mHoleType;
+
+    // Debug
+    private Paint mDebugRectPaint = new Paint();
 
     public CoachCover(Context context) {
         super(context);
@@ -113,15 +117,15 @@ public class CoachCover extends View {
 
         if (!mInverseHolePath.isEmpty()) {
             canvas.drawPath(mInverseHolePath, mBackgroundPaint);
+
+            // Debug
+            if (DEBUG) {
+                mDebugRectPaint.setColor(Color.RED);
+                mDebugRectPaint.setStyle(Paint.Style.STROKE);
+                canvas.drawRect(mHoleRect, mDebugRectPaint);
+            }
         } else {
             canvas.drawColor(BG_COLOR);
-        }
-
-        if (!mHoleRect.isEmpty()) {
-            Paint p = new Paint();
-            p.setColor(Color.RED);
-            p.setStyle(Paint.Style.STROKE);
-            canvas.drawRect(mHoleRect, p);
         }
     }
 }
