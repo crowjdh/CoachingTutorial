@@ -213,27 +213,51 @@ public class Coach {
         CoachCover.LayoutParams lp = (CoachCover.LayoutParams) bubble.getLayoutParams();
         float bubbleLeft = holeRect.centerX() - bubble.getTriangleCenterX();
 
-        lp.leftMargin = Math.max((int) bubbleLeft, 0);
+//        lp.leftMargin = Math.max((int) bubbleLeft, 0);
+        lp.leftMargin = (int) bubbleLeft;
         bubble.setLayoutParams(lp);
     }
 
     private void adjustBubbleVertically(TargetSpec targetSpec, RectF holeRect, SpeechBubble bubble) {
         CoachCover.LayoutParams lp = (CoachCover.LayoutParams) bubble.getLayoutParams();
         float bubbleTop;
+        float holeRadius;
         switch (targetSpec.direction.verticalBias) {
 //                case CENTER:
 //                    bubbleTop = holeRect.centerY() - bubble.getHeight() / 2;
 //                    break;
             case BOTTOM:
                 bubbleTop = holeRect.bottom;
+                switch (targetSpec.holeType) {
+                    case HALF_INSCRIBE:
+                        holeRadius = Math.max(holeRect.width(), holeRect.height()) / 2;
+                        bubbleTop += holeRadius - holeRect.height() / 2;
+                        break;
+                    case CIRCUMSCRIBE:
+                        holeRadius = (float) Math.hypot(holeRect.width(), holeRect.height()) / 2;
+                        bubbleTop += holeRadius - holeRect.height() / 2;
+                        break;
+                }
                 break;
             case TOP:
             default:
                 bubbleTop = holeRect.top - bubble.getHeight();
+                switch (targetSpec.holeType) {
+                    case HALF_INSCRIBE:
+                        holeRadius = Math.max(holeRect.width(), holeRect.height()) / 2;
+                        bubbleTop -= holeRadius - holeRect.height() / 2;
+//                        bubbleTop -= Math.max(holeRect.width(), holeRect.height()) / 2;
+                        break;
+                    case CIRCUMSCRIBE:
+                        holeRadius = (float) Math.hypot(holeRect.width(), holeRect.height()) / 2;
+                        bubbleTop -= holeRadius - holeRect.height() / 2;
+                        break;
+                }
                 break;
         }
 
-        lp.topMargin = Math.max((int) bubbleTop, 0);
+//        lp.topMargin = Math.max((int) bubbleTop, 0);
+        lp.topMargin = (int) bubbleTop;
         bubble.setLayoutParams(lp);
     }
 }

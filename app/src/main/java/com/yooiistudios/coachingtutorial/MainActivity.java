@@ -39,13 +39,49 @@ public class MainActivity extends AppCompatActivity {
 //        mBubble.bringToFront();
 
         TargetSpecs specs = new TargetSpecs();
-        TargetSpec targetSpec = new TargetSpec.Builder(mRightTopView)
+        TargetSpec targetSpec;
+
+        targetSpec = new TargetSpec.Builder(mRightTopView)
                 .setHoleType(HoleType.INSCRIBE)
-                .setDirection(TargetSpec.Direction.BOTTOM_RIGHT)
+                .setDirection(TargetSpec.Direction.TOP_LEFT)
                 .setMessage("The quick gray fox jumps over the lazy dog.")
                 .build();
         specs.add(targetSpec);
-        specs.add(new TargetSpec.Builder(mBottomCenterView).build());
+
+        targetSpec = new TargetSpec.Builder(mRightTopView)
+                .setHoleType(HoleType.HALF_INSCRIBE)
+                .setDirection(TargetSpec.Direction.TOP_LEFT)
+                .setMessage("The quick gray fox jumps over the lazy dog.")
+                .build();
+        specs.add(targetSpec);
+
+        targetSpec = new TargetSpec.Builder(mRightTopView)
+                .setHoleType(HoleType.CIRCUMSCRIBE)
+                .setDirection(TargetSpec.Direction.TOP_LEFT)
+                .setMessage("The quick gray fox jumps over the lazy dog.")
+                .build();
+        specs.add(targetSpec);
+
+        targetSpec = new TargetSpec.Builder(mRightTopView)
+                .setHoleType(HoleType.INSCRIBE)
+                .setDirection(TargetSpec.Direction.BOTTOM)
+                .setMessage("The quick gray fox jumps over the lazy dog.")
+                .build();
+        specs.add(targetSpec);
+
+        targetSpec = new TargetSpec.Builder(mRightTopView)
+                .setHoleType(HoleType.HALF_INSCRIBE)
+                .setDirection(TargetSpec.Direction.BOTTOM)
+                .setMessage("The quick gray fox jumps over the lazy dog.")
+                .build();
+        specs.add(targetSpec);
+
+        targetSpec = new TargetSpec.Builder(mRightTopView)
+                .setHoleType(HoleType.CIRCUMSCRIBE)
+                .setDirection(TargetSpec.Direction.BOTTOM)
+                .setMessage("The quick gray fox jumps over the lazy dog.")
+                .build();
+        specs.add(targetSpec);
         Coach.start(this, specs);
 
 //        mRootView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
