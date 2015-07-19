@@ -9,7 +9,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.View;
+import android.widget.FrameLayout;
 
 /**
  * Created by Dongheyon Jeong in CoachingTutorial from Yooii Studios Co., LTD. on 15. 7. 17.
@@ -17,12 +17,7 @@ import android.view.View;
  * CoachCover
  * description
  */
-public class CoachCover extends View {
-    public enum HoleType {
-        INSCRIBE,
-        HALF_INSCRIBE,
-        CIRCUMSCRIBE
-    }
+public class CoachCover extends FrameLayout {
     private static final int BG_COLOR = Color.parseColor("#bb000000");
     private static final boolean DEBUG = true;
 
@@ -57,6 +52,7 @@ public class CoachCover extends View {
     }
 
     private void init() {
+        setWillNotDraw(false);
         mBackgroundPaint.setColor(BG_COLOR);
         mBackgroundPaint.setAntiAlias(true);
     }

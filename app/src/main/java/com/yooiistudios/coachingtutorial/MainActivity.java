@@ -1,22 +1,20 @@
 package com.yooiistudios.coachingtutorial;
 
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.yooiistudios.coachingtutorial.coaching.Coach;
-import com.yooiistudios.coachingtutorial.coaching.SpeechBubble;
+import com.yooiistudios.coachingtutorial.coaching.HoleType;
 import com.yooiistudios.coachingtutorial.coaching.TargetSpec;
 import com.yooiistudios.coachingtutorial.coaching.TargetSpecs;
 
 public class MainActivity extends AppCompatActivity {
     private RelativeLayout mRootView;
-    private SpeechBubble mBubble;
+//    private SpeechBubble mBubble;
     private View mRightTopView;
     private View mBottomCenterView;
 
@@ -26,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mRootView = (RelativeLayout) findViewById(R.id.root);
-        mBubble = (SpeechBubble) findViewById(R.id.bubble);
+//        mBubble = (SpeechBubble) findViewById(R.id.bubble);
         mRightTopView = findViewById(R.id.right_top);
         mBottomCenterView = findViewById(R.id.bottom_center);
 
@@ -41,7 +39,12 @@ public class MainActivity extends AppCompatActivity {
 //        mBubble.bringToFront();
 
         TargetSpecs specs = new TargetSpecs();
-        specs.add(new TargetSpec.Builder(mRightTopView).build());
+        TargetSpec targetSpec = new TargetSpec.Builder(mRightTopView)
+                .setHoleType(HoleType.INSCRIBE)
+                .setDirection(TargetSpec.Direction.BOTTOM_RIGHT)
+                .setMessage("The gray fox")
+                .build();
+        specs.add(targetSpec);
         specs.add(new TargetSpec.Builder(mBottomCenterView).build());
         Coach.start(this, specs);
 
@@ -52,24 +55,33 @@ public class MainActivity extends AppCompatActivity {
 //                return true;
 //            }
 //        });
+
+
+//        final SpeechBubble bubble = new SpeechBubble(this);
+//        bubble.setMessage("The gray fox is blahblah... The gray fox is blahblah... The gray fox is blahblah...");
+//        CoachCover.LayoutParams lp = new CoachCover.LayoutParams(
+//                CoachCover.LayoutParams.WRAP_CONTENT,
+//                CoachCover.LayoutParams.WRAP_CONTENT
+//        );
+//        mRootView.addView(bubble, lp);
     }
 
-    private void test() {
-        View parent = findViewById(R.id.parent);
-        View child = findViewById(R.id.child);
-
-        Rect rect = new Rect();
-
-        parent.getGlobalVisibleRect(rect);
-        Log.i("qwerasdf", "parent - getGlobalVisibleRect: " + rect.flattenToString());
-        parent.getLocalVisibleRect(rect);
-        Log.i("qwerasdf", "parent - getLocalVisibleRect: " + rect.flattenToString());
-
-        child.getGlobalVisibleRect(rect);
-        Log.i("qwerasdf", "child  - getGlobalVisibleRect: " + rect.flattenToString());
-        child.getLocalVisibleRect(rect);
-        Log.i("qwerasdf", "child  - getLocalVisibleRect: " + rect.flattenToString());
-    }
+//    private void test() {
+//        View parent = findViewById(R.id.parent);
+//        View child = findViewById(R.id.child);
+//
+//        Rect rect = new Rect();
+//
+//        parent.getGlobalVisibleRect(rect);
+//        Log.i("qwerasdf", "parent - getGlobalVisibleRect: " + rect.flattenToString());
+//        parent.getLocalVisibleRect(rect);
+//        Log.i("qwerasdf", "parent - getLocalVisibleRect: " + rect.flattenToString());
+//
+//        child.getGlobalVisibleRect(rect);
+//        Log.i("qwerasdf", "child  - getGlobalVisibleRect: " + rect.flattenToString());
+//        child.getLocalVisibleRect(rect);
+//        Log.i("qwerasdf", "child  - getLocalVisibleRect: " + rect.flattenToString());
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

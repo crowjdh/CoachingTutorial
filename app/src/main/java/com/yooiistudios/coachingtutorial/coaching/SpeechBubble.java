@@ -11,7 +11,8 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 /**
  * Created by Dongheyon Jeong in CoachingTutorial from Yooii Studios Co., LTD. on 15. 7. 16.
@@ -19,7 +20,7 @@ import android.view.View;
  * SpeechBubble
  *  말풍선 뷰
  */
-public class SpeechBubble extends View {
+public class SpeechBubble extends FrameLayout {
     private static final int STROKE_COLOR = Color.parseColor("#22CCCCCC");
 //    private static final int STROKE_COLOR = Color.CYAN;
     private static final int BG_COLOR = Color.WHITE;
@@ -27,17 +28,21 @@ public class SpeechBubble extends View {
     private static final int ROUND_RECT_RADIUS_DP = 3;
     private static final int TRIANGLE_WIDTH = 14;
     private static final int TRIANGLE_HEIGHT = 13;
+    private static final int DEFAULT_MESSAGE_PADDING = 2;
+    private static final boolean DEBUG = false;
 
     private Paint mBackgroundPaint = new Paint();
     private Paint mStrokePaint = new Paint();
     private RectF mDrawBound = new RectF();
     private Path mOutline = new Path();
+    private TextView mMessageView;
 
     private float mRectRoundRadius;
     private float mStrokeWidth;
     private float mHalfOfTriangleWidth;
     private float mTriangleHeight;
     private float mTriangleCenterX;
+    private int mMessagePadding;
 
     public SpeechBubble(Context context) {
         super(context);
@@ -60,10 +65,31 @@ public class SpeechBubble extends View {
         init();
     }
 
+    public void setMessage(CharSequence message) {
+        mMessageView.setText(message);
+    }
+
+    public void setMessageColor(int color) {
+        mMessageView.setTextColor(color);
+    }
+
+    public void setMessagePadding(int padding) {
+        mMessagePadding = padding;
+        setMessageViewMargins();
+//        applyMessagePadding();
+    }
+
     private void init() {
 //        ViewCompat.setElevation(this, 80);
+        if (DEBUG) {
+            setBackgroundColor(Color.CYAN);
+        }
+        setWillNotDraw(false);
         initSizes();
         initPaints();
+        initMessageView();
+
+        setMinimumWidth((int) (mHalfOfTriangleWidth * 3));
     }
 
     private void initSizes() {
@@ -77,6 +103,8 @@ public class SpeechBubble extends View {
         mHalfOfTriangleWidth = triangleWidth / 2;
         mTriangleHeight = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, TRIANGLE_HEIGHT, displayMetrics);
+        mMessagePadding = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, DEFAULT_MESSAGE_PADDING, displayMetrics);
     }
 
     private void initPaints() {
@@ -88,6 +116,23 @@ public class SpeechBubble extends View {
         mStrokePaint.setStyle(Paint.Style.STROKE);
         mStrokePaint.setAntiAlias(true);
     }
+
+    private void initMessageView() {
+        mMessageView = new TextView(getContext());
+        if (DEBUG) {
+            mMessageView.setBackgroundColor(Color.RED);
+            mMessageView.setText("qwerasdf");
+        }
+//        applyMessagePadding();
+        LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        mMessageView.setLayoutParams(lp);
+        setMessageViewMargins();
+        addView(mMessageView);
+    }
+
+//    private void applyMessagePadding() {
+//        mMessageView.setPadding(mMessagePadding, mMessagePadding, mMessagePadding, mMessagePadding);
+//    }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -101,6 +146,7 @@ public class SpeechBubble extends View {
         mTriangleCenterX = getPaddingLeft() + width / 2;
         setDrawBound(width, height);
         setOutlinePath();
+        setMessageViewMargins();
     }
 
     private void setDrawBound(int width, int height) {
@@ -134,6 +180,7 @@ public class SpeechBubble extends View {
         RectF leftBottomArcRect = new RectF(
                 messageRect.left, ovalInboundRect.bottom, ovalInboundRect.left, messageRect.bottom);
 
+        mOutline.reset();
         mOutline.moveTo(messageRect.left, messageInnerRect.top);
         mOutline.arcTo(leftTopArcRect, 180, 90);
         mOutline.lineTo(messageInnerRect.right, messageRect.top);
@@ -149,6 +196,13 @@ public class SpeechBubble extends View {
 
         mOutline.arcTo(leftBottomArcRect, 90, 90);
         mOutline.close();
+    }
+
+    private void setMessageViewMargins() {
+        LayoutParams lp = (LayoutParams)mMessageView.getLayoutParams();
+        int radius = (int) mRectRoundRadius + mMessagePadding;
+        lp.setMargins(radius, radius, radius, radius + (int) mTriangleHeight);
+        mMessageView.setLayoutParams(lp);
     }
 
     @Override
