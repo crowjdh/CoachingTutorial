@@ -1,26 +1,30 @@
 package com.yooiistudios.coachingtutorial.coaching;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.os.Build;
-import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
 /**
  * Created by Dongheyon Jeong in CoachingTutorial from Yooii Studios Co., LTD. on 15. 7. 17.
  *
- * CoachCover
- * description
+ * HighlightCover
+ *  원형으로 하이라이트를 주는 커버 레이아웃
  */
-public class CoachCover extends FrameLayout {
+public class HighlightCover extends FrameLayout {
+    public enum HoleType {
+        INSCRIBE,
+        HALF_INSCRIBE,
+        CIRCUMSCRIBE
+    }
+
     private static final int BG_COLOR = Color.parseColor("#bb000000");
     private static final boolean DEBUG = true;
 
+    private int mBackgroundColor;
     private Paint mBackgroundPaint = new Paint();
     private RectF mDrawBound = new RectF();
     private RectF mHoleRect = new RectF();
@@ -30,30 +34,14 @@ public class CoachCover extends FrameLayout {
     // Debug
     private Paint mDebugRectPaint = new Paint();
 
-    public CoachCover(Context context) {
+    public HighlightCover(Context context) {
         super(context);
-        init();
-    }
-
-    public CoachCover(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    public CoachCover(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public CoachCover(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
 
     private void init() {
         setWillNotDraw(false);
-        mBackgroundPaint.setColor(BG_COLOR);
+        setBackgroundColor(BG_COLOR);
         mBackgroundPaint.setAntiAlias(true);
     }
 
@@ -62,6 +50,11 @@ public class CoachCover extends FrameLayout {
         mHoleType = holeType;
         updateInverseHolePath();
         invalidate();
+    }
+
+    public void setBackgroundColor(int color) {
+        mBackgroundColor = color;
+        mBackgroundPaint.setColor(mBackgroundColor);
     }
 
     @Override
@@ -121,7 +114,7 @@ public class CoachCover extends FrameLayout {
                 canvas.drawRect(mHoleRect, mDebugRectPaint);
             }
         } else {
-            canvas.drawColor(BG_COLOR);
+            canvas.drawColor(mBackgroundColor);
         }
     }
 }

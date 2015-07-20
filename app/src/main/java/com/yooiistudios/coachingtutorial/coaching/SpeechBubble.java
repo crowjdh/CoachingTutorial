@@ -1,14 +1,11 @@
 package com.yooiistudios.coachingtutorial.coaching;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.os.Build;
-import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.FrameLayout;
@@ -24,7 +21,6 @@ public class SpeechBubble extends FrameLayout {
     public enum Direction { UPWARD, DOWNWARD }
 
     private static final int STROKE_COLOR = Color.parseColor("#22CCCCCC");
-//    private static final int STROKE_COLOR = Color.CYAN;
     private static final int BG_COLOR = Color.WHITE;
     private static final float STROKE_WIDTH_DP = 1.f;
     private static final int ROUND_RECT_RADIUS_DP = 3;
@@ -53,22 +49,6 @@ public class SpeechBubble extends FrameLayout {
         init();
     }
 
-    public SpeechBubble(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    public SpeechBubble(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public SpeechBubble(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
-
     public void setDirection(Direction direction) {
         mDirection = direction;
         calculateOutlinePathWhenPossible();
@@ -86,7 +66,7 @@ public class SpeechBubble extends FrameLayout {
      * Returns current center x of the triangle. If you want to get this value after
      * the method {@link #setTriangleCenterXRatio(float ratio) setTriangleCenterXRatio},
      * you must wait for layout invalidates.
-     * @return
+     * @return center x coordinate of triangle
      */
     public float getTriangleCenterX() {
         return mTriangleCenterX;

@@ -1,6 +1,7 @@
 package com.yooiistudios.coachingtutorial.coaching;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -16,14 +17,14 @@ import java.lang.ref.WeakReference;
  * Created by Dongheyon Jeong in CoachingTutorial from Yooii Studios Co., LTD. on 15. 7. 17.
  *
  * Coach
- * description
+ *  튜토리얼을 실행하는 유틸 클래스
  */
 public class Coach {
     private static final String TAG_COACH_COVER = "tag_coach_cover";
     private static final String TAG_SPEECH_BUBBLE = "tag_speech_bubble";
     private WeakReference<Activity> mActivityWeakReference;
     private TargetSpecs mTargetSpecs;
-    private CoachCover mCoachCover;
+    private HighlightCover mHighlightCover;
     private Point mMaxSpeechBubbleSize = new Point();
 
     private Coach(WeakReference<Activity> activityWeakReference, TargetSpecs targetSpecs) {
@@ -37,7 +38,7 @@ public class Coach {
 
     private void start() {
         boolean hasInvalidArguments = mTargetSpecs.size() == 0 || getActivity() == null;
-        if (hasInvalidArguments || mCoachCover != null) {
+        if (hasInvalidArguments || mHighlightCover != null) {
             // ignore
             return;
         }
@@ -53,9 +54,10 @@ public class Coach {
     private void initCoachCover() {
         removeCoachCover();
 
-        mCoachCover = new CoachCover(getActivity());
-        mCoachCover.setTag(TAG_COACH_COVER);
-        mCoachCover.setOnTouchListener(new View.OnTouchListener() {
+        mHighlightCover = new HighlightCover(getActivity());
+        mHighlightCover.setBackgroundColor(Color.parseColor("#cc000000"));
+        mHighlightCover.setTag(TAG_COACH_COVER);
+        mHighlightCover.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 int action = event.getActionMasked();
@@ -68,18 +70,18 @@ public class Coach {
     }
 
     private void addCoachCover() {
-        getActivity().addContentView(mCoachCover, new ViewGroup.LayoutParams(
+        getActivity().addContentView(mHighlightCover, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     private void coachNextOnCoachCoverSizeFix() {
-        mCoachCover.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        mHighlightCover.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                mCoachCover.getViewTreeObserver().removeOnPreDrawListener(this);
+                mHighlightCover.getViewTreeObserver().removeOnPreDrawListener(this);
 
-                mMaxSpeechBubbleSize.x = (int) (mCoachCover.getWidth() * 0.5);
-                mMaxSpeechBubbleSize.y = (int) (mCoachCover.getWidth() * 0.6);
+                mMaxSpeechBubbleSize.x = (int) (mHighlightCover.getWidth() * 0.5);
+                mMaxSpeechBubbleSize.y = (int) (mHighlightCover.getWidth() * 0.6);
 
                 coachNext();
                 return true;
@@ -110,9 +112,9 @@ public class Coach {
     }
 
     private void removeCoachCover() {
-        if (mCoachCover != null && mCoachCover.getParent() != null) {
-            ViewGroup parent = (ViewGroup) mCoachCover.getParent();
-            parent.removeView(mCoachCover);
+        if (mHighlightCover != null && mHighlightCover.getParent() != null) {
+            ViewGroup parent = (ViewGroup) mHighlightCover.getParent();
+            parent.removeView(mHighlightCover);
         }
     }
 
@@ -131,13 +133,13 @@ public class Coach {
         targetView.getGlobalVisibleRect(tempRect);
         RectF visibleRect = new RectF(tempRect);
 
-        mCoachCover.getGlobalVisibleRect(tempRect);
+        mHighlightCover.getGlobalVisibleRect(tempRect);
         visibleRect.offset(-tempRect.left, -tempRect.top);
         return visibleRect;
     }
 
     private void showHole(TargetSpec targetSpec, RectF holeRect) {
-        mCoachCover.makeHoleAt(holeRect, targetSpec.holeType);
+        mHighlightCover.makeHoleAt(holeRect, targetSpec.holeType);
     }
 
     private void showSpeechBubble(final TargetSpec targetSpec, final RectF holeRect) {
@@ -176,18 +178,18 @@ public class Coach {
 //            bubble.setPadding(75, 0, 15, 0);
 //            bubble.setBackgroundColor(Color.CYAN);
 //        }
-        CoachCover.LayoutParams lp = new CoachCover.LayoutParams(
-                CoachCover.LayoutParams.WRAP_CONTENT,
-                CoachCover.LayoutParams.WRAP_CONTENT
+        HighlightCover.LayoutParams lp = new HighlightCover.LayoutParams(
+                HighlightCover.LayoutParams.WRAP_CONTENT,
+                HighlightCover.LayoutParams.WRAP_CONTENT
         );
-        mCoachCover.addView(bubble, lp);
+        mHighlightCover.addView(bubble, lp);
         return bubble;
     }
 
     private void removePreviousSpeechBubble() {
-        View previousBubble = mCoachCover.findViewWithTag(TAG_SPEECH_BUBBLE);
+        View previousBubble = mHighlightCover.findViewWithTag(TAG_SPEECH_BUBBLE);
         if (previousBubble != null) {
-            mCoachCover.removeView(previousBubble);
+            mHighlightCover.removeView(previousBubble);
         }
     }
 
@@ -210,7 +212,7 @@ public class Coach {
     }
 
     private void adjustBubbleHorizontally(RectF holeRect, SpeechBubble bubble) {
-        CoachCover.LayoutParams lp = (CoachCover.LayoutParams) bubble.getLayoutParams();
+        HighlightCover.LayoutParams lp = (HighlightCover.LayoutParams) bubble.getLayoutParams();
         float bubbleLeft = holeRect.centerX() - bubble.getTriangleCenterX();
 
 //        lp.leftMargin = Math.max((int) bubbleLeft, 0);
@@ -219,7 +221,7 @@ public class Coach {
     }
 
     private void adjustBubbleVertically(TargetSpec targetSpec, RectF holeRect, SpeechBubble bubble) {
-        CoachCover.LayoutParams lp = (CoachCover.LayoutParams) bubble.getLayoutParams();
+        HighlightCover.LayoutParams lp = (HighlightCover.LayoutParams) bubble.getLayoutParams();
         float bubbleTop;
         float holeRadius;
         switch (targetSpec.direction.verticalBias) {

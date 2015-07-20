@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.yooiistudios.coachingtutorial.coaching.Coach;
-import com.yooiistudios.coachingtutorial.coaching.HoleType;
+import com.yooiistudios.coachingtutorial.coaching.HighlightCover;
 import com.yooiistudios.coachingtutorial.coaching.TargetSpec;
 import com.yooiistudios.coachingtutorial.coaching.TargetSpecs;
 
@@ -41,47 +41,16 @@ public class MainActivity extends AppCompatActivity {
         TargetSpecs specs = new TargetSpecs();
         TargetSpec targetSpec;
 
-        targetSpec = new TargetSpec.Builder(mRightTopView)
-                .setHoleType(HoleType.INSCRIBE)
-                .setDirection(TargetSpec.Direction.TOP_LEFT)
-                .setMessage("The quick gray fox jumps over the lazy dog.")
-                .build();
-        specs.add(targetSpec);
-
-        targetSpec = new TargetSpec.Builder(mRightTopView)
-                .setHoleType(HoleType.HALF_INSCRIBE)
-                .setDirection(TargetSpec.Direction.TOP_LEFT)
-                .setMessage("The quick gray fox jumps over the lazy dog.")
-                .build();
-        specs.add(targetSpec);
-
-        targetSpec = new TargetSpec.Builder(mRightTopView)
-                .setHoleType(HoleType.CIRCUMSCRIBE)
-                .setDirection(TargetSpec.Direction.TOP_LEFT)
-                .setMessage("The quick gray fox jumps over the lazy dog.")
-                .build();
-        specs.add(targetSpec);
-
-        targetSpec = new TargetSpec.Builder(mRightTopView)
-                .setHoleType(HoleType.INSCRIBE)
-                .setDirection(TargetSpec.Direction.BOTTOM)
-                .setMessage("The quick gray fox jumps over the lazy dog.")
-                .build();
-        specs.add(targetSpec);
-
-        targetSpec = new TargetSpec.Builder(mRightTopView)
-                .setHoleType(HoleType.HALF_INSCRIBE)
-                .setDirection(TargetSpec.Direction.BOTTOM)
-                .setMessage("The quick gray fox jumps over the lazy dog.")
-                .build();
-        specs.add(targetSpec);
-
-        targetSpec = new TargetSpec.Builder(mRightTopView)
-                .setHoleType(HoleType.CIRCUMSCRIBE)
-                .setDirection(TargetSpec.Direction.BOTTOM)
-                .setMessage("The quick gray fox jumps over the lazy dog.")
-                .build();
-        specs.add(targetSpec);
+        for (int i = 0; i < HighlightCover.HoleType.values().length; i++) {
+            for (int j = 0; j < TargetSpec.Direction.values().length; j++) {
+                targetSpec = new TargetSpec.Builder(mRightTopView)
+                        .setHoleType(HighlightCover.HoleType.values()[i])
+                        .setDirection(TargetSpec.Direction.values()[j])
+                        .setMessage("The quick gray fox jumps over the lazy dog.")
+                        .build();
+                specs.add(targetSpec);
+            }
+        }
         Coach.start(this, specs);
 
 //        mRootView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
