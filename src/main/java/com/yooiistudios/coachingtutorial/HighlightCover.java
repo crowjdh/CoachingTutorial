@@ -21,8 +21,7 @@ public class HighlightCover extends FrameLayout {
         CIRCUMSCRIBE
     }
 
-    private static final int BG_COLOR = Color.parseColor("#bb000000");
-    private static final boolean DEBUG = true;
+    private static final int BG_COLOR = Color.parseColor("#99000000");
 
     private int mBackgroundColor;
     private Paint mBackgroundPaint = new Paint();
@@ -108,7 +107,7 @@ public class HighlightCover extends FrameLayout {
             canvas.drawPath(mInverseHolePath, mBackgroundPaint);
 
             // Debug
-            if (DEBUG) {
+            if (DebugSettings.isDebug()) {
                 mDebugRectPaint.setColor(Color.RED);
                 mDebugRectPaint.setStyle(Paint.Style.STROKE);
                 canvas.drawRect(mHoleRect, mDebugRectPaint);

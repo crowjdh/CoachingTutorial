@@ -6,6 +6,8 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,18 +24,20 @@ import java.lang.ref.WeakReference;
 public class Coach {
     private static final String TAG_COACH_COVER = "tag_coach_cover";
     private static final String TAG_SPEECH_BUBBLE = "tag_speech_bubble";
+    private static final int DEFAULT_HOLE_PADDING_DP = 7;
+
     private WeakReference<Activity> mActivityWeakReference;
     private TargetSpecs mTargetSpecs;
     private HighlightCover mHighlightCover;
     private Point mMaxSpeechBubbleSize = new Point();
 
-    private Coach(WeakReference<Activity> activityWeakReference, TargetSpecs targetSpecs) {
-        mActivityWeakReference = activityWeakReference;
+    private Coach(Activity activity, TargetSpecs targetSpecs) {
+        mActivityWeakReference = new WeakReference<>(activity);
         mTargetSpecs = targetSpecs;
     }
 
     public static void start(Activity activity, final TargetSpecs targetSpecs) {
-        new Coach(new WeakReference<>(activity), targetSpecs).start();
+        new Coach(activity, targetSpecs).start();
     }
 
     private void start() {
@@ -78,12 +82,17 @@ public class Coach {
         mHighlightCover.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                mHighlightCover.getViewTreeObserver().removeOnPreDrawListener(this);
+                int width = mHighlightCover.getWidth();
+                int height = mHighlightCover.getHeight();
+                if (width > 0 && height > 0) {
+                    mHighlightCover.getViewTreeObserver().removeOnPreDrawListener(this);
 
-                mMaxSpeechBubbleSize.x = (int) (mHighlightCover.getWidth() * 0.5);
-                mMaxSpeechBubbleSize.y = (int) (mHighlightCover.getWidth() * 0.6);
+                    mMaxSpeechBubbleSize.x = (int) (width * 0.9);
+                    mMaxSpeechBubbleSize.y = (int) (height * 0.6);
 
-                coachNext();
+                    coachNext();
+                }
+
                 return true;
             }
         });
@@ -135,6 +144,17 @@ public class Coach {
 
         mHighlightCover.getGlobalVisibleRect(tempRect);
         visibleRect.offset(-tempRect.left, -tempRect.top);
+
+        float holePaddingDp;
+        if (targetSpec.holePaddingDp > 0) {
+            holePaddingDp = targetSpec.holePaddingDp;
+        } else {
+            holePaddingDp = DEFAULT_HOLE_PADDING_DP;
+        }
+        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+        float holePadding = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, holePaddingDp, displayMetrics);
+        visibleRect.inset(-holePadding, -holePadding);
         return visibleRect;
     }
 

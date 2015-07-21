@@ -44,12 +44,14 @@ public class TargetSpec {
     public final String message;
     public final Direction direction;
     public final HighlightCover.HoleType holeType;
+    public final int holePaddingDp;
 
     public TargetSpec(Builder builder) {
         view = builder.view;
         message = builder.message;
         direction = builder.direction;
         holeType = builder.holeType;
+        holePaddingDp = builder.holePaddingDp;
     }
 
     public static class Builder {
@@ -58,6 +60,7 @@ public class TargetSpec {
         public String message = "";
         public Direction direction = Direction.TOP_LEFT;
         public HighlightCover.HoleType holeType = HighlightCover.HoleType.CIRCUMSCRIBE;
+        public int holePaddingDp = 0;
 
         public Builder(@NonNull View view) {
             this.view = view;
@@ -75,6 +78,11 @@ public class TargetSpec {
 
         public Builder setHoleType(HighlightCover.HoleType holeType) {
             this.holeType = holeType;
+            return this;
+        }
+
+        public Builder setHolePaddingDp(int holePaddingDp) {
+            this.holePaddingDp = holePaddingDp;
             return this;
         }
 
