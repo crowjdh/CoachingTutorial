@@ -1,4 +1,4 @@
-package com.yooiistudios.coachingtutorial.coaching;
+package com.yooiistudios.coachingtutorial;
 
 import android.app.Activity;
 import android.graphics.Color;

@@ -1,4 +1,4 @@
-package com.yooiistudios.coachingtutorial.coaching;
+package com.yooiistudios.coachingtutorial;
 
 import java.util.Iterator;
 import java.util.LinkedList;

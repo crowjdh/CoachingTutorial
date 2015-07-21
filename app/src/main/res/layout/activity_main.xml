@@ -30,7 +30,7 @@
         android:layout_marginBottom="150dp"
         android:background="#ff0000"/>
 
-    <!--<com.yooiistudios.coachingtutorial.coaching.SpeechBubble-->
+    <!--<com.yooiistudios.coachingtutorial.SpeechBubble-->
         <!--android:id="@+id/bubble"-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
