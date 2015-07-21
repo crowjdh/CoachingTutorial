@@ -39,6 +39,7 @@ public class TargetSpec {
             LEFT, CENTER, RIGHT
         }
     }
+
     @NonNull
     public final View[] views;
     public final String message;

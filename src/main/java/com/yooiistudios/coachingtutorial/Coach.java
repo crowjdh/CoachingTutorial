@@ -25,15 +25,22 @@ public class Coach {
     private static final String TAG_COACH_COVER = "tag_coach_cover";
     private static final String TAG_SPEECH_BUBBLE = "tag_speech_bubble";
     private static final int DEFAULT_HOLE_PADDING_DP = 7;
+    private static final Callback NULL_LISTENER = new NullCallback();
 
     private WeakReference<Activity> mActivityWeakReference;
     private TargetSpecs mTargetSpecs;
     private HighlightCover mHighlightCover;
     private Point mMaxSpeechBubbleSize = new Point();
+    private Callback mCallback;
 
     private Coach(Activity activity, TargetSpecs targetSpecs) {
+        this(activity, targetSpecs, NULL_LISTENER);
+    }
+
+    private Coach(Activity activity, TargetSpecs targetSpecs, Callback callback) {
         mActivityWeakReference = new WeakReference<>(activity);
         mTargetSpecs = targetSpecs;
+        mCallback = callback;
     }
 
     public static void start(Activity activity, final TargetSpec targetSpec) {
@@ -45,6 +52,10 @@ public class Coach {
 
     public static void start(Activity activity, final TargetSpecs targetSpecs) {
         new Coach(activity, targetSpecs).start();
+    }
+
+    public static void start(Activity activity, final TargetSpecs targetSpecs, Callback callback) {
+        new Coach(activity, targetSpecs, callback).start();
     }
 
     private void start() {
@@ -108,6 +119,8 @@ public class Coach {
     private void coachNext() {
         if (!mTargetSpecs.hasNext()) {
             removeCoachCover();
+            mCallback.notifyDone();
+            // notify
             return;
         }
         final TargetSpec targetSpec = mTargetSpecs.next();
@@ -293,5 +306,28 @@ public class Coach {
 //        lp.topMargin = Math.max((int) bubbleTop, 0);
         lp.topMargin = (int) bubbleTop;
         bubble.setLayoutParams(lp);
+    }
+
+    public static abstract class Callback {
+        private String mTag;
+
+        public Callback(String tag) {
+            mTag = tag;
+        }
+
+        private void notifyDone() {
+            onDone(mTag);
+        }
+
+        public abstract void onDone(String tag);
+    }
+
+    private static class NullCallback extends Callback {
+        public NullCallback() {
+            super("");
+        }
+
+        @Override
+        public void onDone(String ignored) { }
     }
 }

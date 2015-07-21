@@ -123,6 +123,7 @@ public class SpeechBubble extends FrameLayout {
     private void initPaints() {
         mBackgroundPaint.setColor(BG_COLOR);
         mBackgroundPaint.setStyle(Paint.Style.FILL);
+        mBackgroundPaint.setAntiAlias(true);
 
         mStrokePaint.setColor(STROKE_COLOR);
         mStrokePaint.setStrokeWidth(mStrokeWidth);
