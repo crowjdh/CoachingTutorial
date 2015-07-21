@@ -36,6 +36,13 @@ public class Coach {
         mTargetSpecs = targetSpecs;
     }
 
+    public static void start(Activity activity, final TargetSpec targetSpec) {
+        TargetSpecs targetSpecs = new TargetSpecs();
+        targetSpecs.add(targetSpec);
+
+        start(activity, targetSpecs);
+    }
+
     public static void start(Activity activity, final TargetSpecs targetSpecs) {
         new Coach(activity, targetSpecs).start();
     }
@@ -104,7 +111,7 @@ public class Coach {
             return;
         }
         final TargetSpec targetSpec = mTargetSpecs.next();
-        View targetView = targetSpec.view;
+        final View targetView = targetSpec.views[0];
         if (targetView.getWidth() > 0 && targetView.getHeight() > 0) {
             highlight(targetSpec);
         } else {
@@ -112,7 +119,7 @@ public class Coach {
                     new ViewTreeObserver.OnPreDrawListener() {
                         @Override
                         public boolean onPreDraw() {
-                            targetSpec.view.getViewTreeObserver().removeOnPreDrawListener(this);
+                            targetView.getViewTreeObserver().removeOnPreDrawListener(this);
                             highlight(targetSpec);
                             return true;
                         }
@@ -136,11 +143,16 @@ public class Coach {
     @NonNull
     private RectF getHoleRect(TargetSpec targetSpec) {
         // TODO: consider scale, rotate, translation
-        View targetView = targetSpec.view;
         Rect tempRect = new Rect();
+        RectF tempRectF = new RectF();
 
-        targetView.getGlobalVisibleRect(tempRect);
-        RectF visibleRect = new RectF(tempRect);
+        RectF visibleRect = new RectF();
+        for (View targetView : targetSpec.views) {
+            targetView.getGlobalVisibleRect(tempRect);
+            tempRectF.set(tempRect);
+
+            visibleRect.union(tempRectF);
+        }
 
         mHighlightCover.getGlobalVisibleRect(tempRect);
         visibleRect.offset(-tempRect.left, -tempRect.top);
@@ -251,11 +263,11 @@ public class Coach {
             case BOTTOM:
                 bubbleTop = holeRect.bottom;
                 switch (targetSpec.holeType) {
-                    case HALF_INSCRIBE:
+                    case CIRCLE_HALF_INSCRIBE:
                         holeRadius = Math.max(holeRect.width(), holeRect.height()) / 2;
                         bubbleTop += holeRadius - holeRect.height() / 2;
                         break;
-                    case CIRCUMSCRIBE:
+                    case CIRCLE_CIRCUMSCRIBE:
                         holeRadius = (float) Math.hypot(holeRect.width(), holeRect.height()) / 2;
                         bubbleTop += holeRadius - holeRect.height() / 2;
                         break;
@@ -265,12 +277,12 @@ public class Coach {
             default:
                 bubbleTop = holeRect.top - bubble.getHeight();
                 switch (targetSpec.holeType) {
-                    case HALF_INSCRIBE:
+                    case CIRCLE_HALF_INSCRIBE:
                         holeRadius = Math.max(holeRect.width(), holeRect.height()) / 2;
                         bubbleTop -= holeRadius - holeRect.height() / 2;
 //                        bubbleTop -= Math.max(holeRect.width(), holeRect.height()) / 2;
                         break;
-                    case CIRCUMSCRIBE:
+                    case CIRCLE_CIRCUMSCRIBE:
                         holeRadius = (float) Math.hypot(holeRect.width(), holeRect.height()) / 2;
                         bubbleTop -= holeRadius - holeRect.height() / 2;
                         break;
