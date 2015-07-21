@@ -1,4 +1,4 @@
-package com.yooiistudios.coachingtutorial.coaching;
+package com.yooiistudios.coachingtutorial;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,7 +11,6 @@ import java.util.Queue;
  *  TargetSpec 들의 리스트를 래핑
  */
 public class TargetSpecs implements Iterable<TargetSpec> {
-//    private ArrayList<TargetSpec> mTargetSpecs = new ArrayList<>();
     private Queue<TargetSpec> mTargetSpecs = new LinkedList<>();
 
     public TargetSpecs() {
