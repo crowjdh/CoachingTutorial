@@ -8,7 +8,6 @@ import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -26,7 +25,7 @@ import java.lang.ref.WeakReference;
  * Coach
  *  튜토리얼을 실행하는 유틸 클래스
  */
-public class Coach {
+public class Coach implements HighlightCover.OnEventListener {
     private static final String TAG_COACH_COVER = "tag_coach_cover";
     private static final String TAG_SPEECH_BUBBLE = "tag_speech_bubble";
     private static final int DEFAULT_HOLE_PADDING_DP = 7;
@@ -49,19 +48,22 @@ public class Coach {
         mCallback = callback;
     }
 
-    public static void start(Activity activity, final TargetSpec targetSpec) {
+    public static Coach start(Activity activity, final TargetSpec targetSpec) {
         TargetSpecs targetSpecs = new TargetSpecs();
         targetSpecs.add(targetSpec);
-
-        start(activity, targetSpecs);
+        return start(activity, targetSpecs);
     }
 
-    public static void start(Activity activity, final TargetSpecs targetSpecs) {
-        new Coach(activity, targetSpecs).start();
+    public static Coach start(Activity activity, final TargetSpecs targetSpecs) {
+        Coach coach = new Coach(activity, targetSpecs);
+        coach.start();
+        return coach;
     }
 
-    public static void start(Activity activity, final TargetSpecs targetSpecs, Callback callback) {
-        new Coach(activity, targetSpecs, callback).start();
+    public static Coach start(Activity activity, final TargetSpecs targetSpecs, Callback callback) {
+        Coach coach = new Coach(activity, targetSpecs, callback);
+        coach.start();
+        return coach;
     }
 
     private void start() {
@@ -75,6 +77,10 @@ public class Coach {
         coachNextOnCoachCoverSizeFix();
     }
 
+    public void proceed() {
+        coachNext();
+    }
+
     private Activity getActivity() {
         return mActivityWeakReference.get();
     }
@@ -82,19 +88,19 @@ public class Coach {
     private void initCoachCover() {
         removeCoachCover();
 
-        mHighlightCover = new HighlightCover(getActivity());
+        mHighlightCover = new HighlightCover(getActivity(), this);
         mHighlightCover.setBackgroundColor(Color.parseColor("#cc000000"));
         mHighlightCover.setTag(TAG_COACH_COVER);
-        mHighlightCover.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getActionMasked();
-                if (action == MotionEvent.ACTION_UP) {
-                    coachNext();
-                }
-                return true;
-            }
-        });
+//        mHighlightCover.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                int action = event.getActionMasked();
+//                if (action == MotionEvent.ACTION_UP) {
+//                    coachNext();
+//                }
+//                return true;
+//            }
+//        });
     }
 
     private void addCoachCover() {
@@ -123,9 +129,7 @@ public class Coach {
     }
 
     private void coachNext() {
-        if (mCurrentTargetSpec != null) {
-            mCallback.onDone(mCurrentTargetSpec);
-        }
+        notifyCurrentHighlightDone();
         if (!mTargetSpecs.hasNext()) {
             removeCoachCover();
             mCallback.notifyDone();
@@ -146,6 +150,12 @@ public class Coach {
                             return true;
                         }
                     });
+        }
+    }
+
+    private void notifyCurrentHighlightDone() {
+        if (mCurrentTargetSpec != null) {
+            mCallback.onDone(mCurrentTargetSpec);
         }
     }
 
@@ -315,6 +325,11 @@ public class Coach {
 //        lp.topMargin = Math.max((int) bubbleTop, 0);
         lp.topMargin = (int) bubbleTop;
         bubble.setLayoutParams(lp);
+    }
+
+    @Override
+    public void onClickHighlight() {
+        coachNext();
     }
 
     public static abstract class Callback {
