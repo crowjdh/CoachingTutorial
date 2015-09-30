@@ -93,16 +93,6 @@ public class Coach implements HighlightCover.OnEventListener {
         mHighlightCover = new HighlightCover(getActivity(), this);
         mHighlightCover.setBackgroundColor(Color.parseColor("#cc000000"));
         mHighlightCover.setTag(TAG_COACH_COVER);
-//        mHighlightCover.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                int action = event.getActionMasked();
-//                if (action == MotionEvent.ACTION_UP) {
-//                    coachNext();
-//                }
-//                return true;
-//            }
-//        });
     }
 
     private void addCoachCover() {
@@ -167,18 +157,6 @@ public class Coach implements HighlightCover.OnEventListener {
             parent.removeView(mHighlightCover);
         }
     }
-
-//    private void removeCoachCoverWithAnimation() {
-//        ObjectAnimator animator = ObjectAnimator.ofFloat(mHighlightCover, "alpha", 1.0f, 0.0f);
-//        animator.setDuration(300);
-//        animator.addListener(new AnimatorListenerAdapter() {
-//            @Override
-//            public void onAnimationEnd(Animator animation) {
-//                super.onAnimationEnd(animation);
-//                removeCoachCover();
-//            }
-//        });
-//    }
 
     private void highlight() {
         RectF holeRect = getHoleRect();

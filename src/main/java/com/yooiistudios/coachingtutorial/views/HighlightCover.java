@@ -160,33 +160,13 @@ public class HighlightCover extends FrameLayout {
         }
     }
 
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent event) {
-//        Log.i("coachingtutorial", "onInterceptTouchEvent");
-////        return determineConsume(event);
-//        return super.onInterceptTouchEvent(event);
-//    }
-//
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        Log.i("coachingtutorial", "onTouchEvent");
         if (event.getActionMasked() == MotionEvent.ACTION_UP) {
             mOnEventListener.onClickHighlight();
         }
-//        return !isInHole;
-//        return true;
         return determineConsume(event);
-//        return super.onTouchEvent(event);
     }
-
-//    private boolean determineNextHighlight(MotionEvent event) {
-//        boolean showNextHighlight = false;
-//        if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-//            showNextHighlight = mStartTouchRegion.isIn() && !mHasTouchRegionChanged;
-//        }
-//
-//        return showNextHighlight;
-//    }
 
     private boolean determineConsume(MotionEvent event) {
         float x = event.getX();
@@ -198,14 +178,12 @@ public class HighlightCover extends FrameLayout {
         }
 
         boolean isInHole = mHoleRect.contains(x, y);
-//        boolean consume = true;
 
         int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mStartTouchRegion = TouchRegion.fromBoolean(isInHole);
                 mHasTouchRegionChanged = false;
-//                        consume = !isInHole;
                 break;
             case MotionEvent.ACTION_MOVE:
                 TouchRegion touchRegion = TouchRegion.fromBoolean(isInHole);
