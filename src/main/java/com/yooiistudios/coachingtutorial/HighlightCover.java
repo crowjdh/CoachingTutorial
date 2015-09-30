@@ -16,13 +16,13 @@ import android.widget.FrameLayout;
  */
 public class HighlightCover extends FrameLayout {
     public enum HoleType {
-        INSCRIBE,
-        HALF_INSCRIBE,
-        CIRCUMSCRIBE
+        CIRCLE_INSCRIBE,
+        CIRCLE_HALF_INSCRIBE,
+        CIRCLE_CIRCUMSCRIBE,
+        CAPSULE_INSCRIBE
     }
 
-    private static final int BG_COLOR = Color.parseColor("#bb000000");
-    private static final boolean DEBUG = true;
+    private static final int BG_COLOR = Color.parseColor("#99000000");
 
     private int mBackgroundColor;
     private Paint mBackgroundPaint = new Paint();
@@ -79,23 +79,51 @@ public class HighlightCover extends FrameLayout {
 
     private void updateInverseHolePath() {
         if (!mHoleRect.isEmpty()) {
+            mInverseHolePath.reset();
+            mInverseHolePath.addRect(mDrawBound, Path.Direction.CW);
+
             float radius;
             switch (mHoleType) {
-                case INSCRIBE:
+                case CIRCLE_INSCRIBE:
+                case CAPSULE_INSCRIBE:
                     radius = Math.min(mHoleRect.width(), mHoleRect.height()) / 2;
                     break;
-                case HALF_INSCRIBE:
+                case CIRCLE_HALF_INSCRIBE:
                     radius = Math.max(mHoleRect.width(), mHoleRect.height()) / 2;
                     break;
-                case CIRCUMSCRIBE:
+                case CIRCLE_CIRCUMSCRIBE:
                 default:
                     radius = (float) (Math.hypot(mHoleRect.width(), mHoleRect.height()) / 2);
                     break;
             }
-            mInverseHolePath.reset();
+            if (mHoleType.equals(HoleType.CAPSULE_INSCRIBE)) {
+                RectF leftCapRect = new RectF(
+                        mHoleRect.left,
+                        mHoleRect.top,
+                        mHoleRect.left + 2 * radius,
+                        mHoleRect.bottom
+                );
+                RectF rightCapRect = new RectF(
+                        mHoleRect.right - 2 * radius,
+                        mHoleRect.top,
+                        mHoleRect.right,
+                        mHoleRect.bottom
+                );
+                RectF innerRect = new RectF(
+                        mHoleRect.left + radius,
+                        mHoleRect.top,
+                        mHoleRect.right - radius,
+                        mHoleRect.bottom
+                );
+                mInverseHolePath.moveTo(innerRect.left, innerRect.top);
 
-            mInverseHolePath.addRect(mDrawBound, Path.Direction.CW);
-            mInverseHolePath.addCircle(mHoleRect.centerX(), mHoleRect.centerY(), radius, Path.Direction.CW);
+                mInverseHolePath.lineTo(innerRect.right, innerRect.top);
+                mInverseHolePath.arcTo(rightCapRect, 270, 180);
+                mInverseHolePath.lineTo(innerRect.left, innerRect.bottom);
+                mInverseHolePath.arcTo(leftCapRect, 90, 180);
+            } else {
+                mInverseHolePath.addCircle(mHoleRect.centerX(), mHoleRect.centerY(), radius, Path.Direction.CW);
+            }
             mInverseHolePath.setFillType(Path.FillType.EVEN_ODD);
         }
     }
@@ -108,7 +136,7 @@ public class HighlightCover extends FrameLayout {
             canvas.drawPath(mInverseHolePath, mBackgroundPaint);
 
             // Debug
-            if (DEBUG) {
+            if (DebugSettings.isDebug()) {
                 mDebugRectPaint.setColor(Color.RED);
                 mDebugRectPaint.setStyle(Paint.Style.STROKE);
                 canvas.drawRect(mHoleRect, mDebugRectPaint);

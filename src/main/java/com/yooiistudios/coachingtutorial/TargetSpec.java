@@ -39,28 +39,34 @@ public class TargetSpec {
             LEFT, CENTER, RIGHT
         }
     }
+
     @NonNull
-    public final View view;
+    public final View[] views;
     public final String message;
     public final Direction direction;
     public final HighlightCover.HoleType holeType;
+    public final int holePaddingDp;
 
     public TargetSpec(Builder builder) {
-        view = builder.view;
+        views = builder.views;
         message = builder.message;
         direction = builder.direction;
         holeType = builder.holeType;
+        holePaddingDp = builder.holePaddingDp;
     }
 
     public static class Builder {
         @NonNull
-        public final View view;
+        public final View[] views;
         public String message = "";
         public Direction direction = Direction.TOP_LEFT;
-        public HighlightCover.HoleType holeType = HighlightCover.HoleType.CIRCUMSCRIBE;
+        public HighlightCover.HoleType holeType = HighlightCover.HoleType.CIRCLE_CIRCUMSCRIBE;
+        public int holePaddingDp = 7;
 
-        public Builder(@NonNull View view) {
-            this.view = view;
+        public Builder(@NonNull View view, View... additionalViews) {
+            this.views = new View[additionalViews.length + 1];
+            this.views[0] = view;
+            System.arraycopy(additionalViews, 0, this.views, 1, additionalViews.length);
         }
 
         public Builder setMessage(String message) {
@@ -75,6 +81,11 @@ public class TargetSpec {
 
         public Builder setHoleType(HighlightCover.HoleType holeType) {
             this.holeType = holeType;
+            return this;
+        }
+
+        public Builder setHolePaddingDp(int holePaddingDp) {
+            this.holePaddingDp = holePaddingDp;
             return this;
         }
 

@@ -26,8 +26,7 @@ public class SpeechBubble extends FrameLayout {
     private static final int ROUND_RECT_RADIUS_DP = 3;
     private static final int TRIANGLE_WIDTH = 14;
     private static final int TRIANGLE_HEIGHT = 13;
-    private static final int DEFAULT_MESSAGE_PADDING = 2;
-    private static final boolean DEBUG = false;
+    private static final int DEFAULT_MESSAGE_PADDING = 8;
 
     private Paint mBackgroundPaint = new Paint();
     private Paint mStrokePaint = new Paint();
@@ -95,7 +94,7 @@ public class SpeechBubble extends FrameLayout {
 
     private void init() {
 //        ViewCompat.setElevation(this, 80);
-        if (DEBUG) {
+        if (DebugSettings.isDebug()) {
             setBackgroundColor(Color.CYAN);
         }
         setWillNotDraw(false);
@@ -124,6 +123,7 @@ public class SpeechBubble extends FrameLayout {
     private void initPaints() {
         mBackgroundPaint.setColor(BG_COLOR);
         mBackgroundPaint.setStyle(Paint.Style.FILL);
+        mBackgroundPaint.setAntiAlias(true);
 
         mStrokePaint.setColor(STROKE_COLOR);
         mStrokePaint.setStrokeWidth(mStrokeWidth);
@@ -133,7 +133,7 @@ public class SpeechBubble extends FrameLayout {
 
     private void initMessageView() {
         mMessageView = new TextView(getContext());
-        if (DEBUG) {
+        if (DebugSettings.isDebug()) {
             mMessageView.setBackgroundColor(Color.RED);
             mMessageView.setText("qwerasdf");
         }
