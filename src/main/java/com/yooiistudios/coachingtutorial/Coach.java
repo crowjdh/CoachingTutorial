@@ -26,6 +26,8 @@ import java.lang.ref.WeakReference;
  *  튜토리얼을 실행하는 유틸 클래스
  */
 public class Coach implements HighlightCover.OnEventListener {
+    public static final Coach NULL_COACH = new NullCoach();
+
     private static final String TAG_COACH_COVER = "tag_coach_cover";
     private static final String TAG_SPEECH_BUBBLE = "tag_speech_bubble";
     private static final int DEFAULT_HOLE_PADDING_DP = 7;
@@ -165,6 +167,18 @@ public class Coach implements HighlightCover.OnEventListener {
             parent.removeView(mHighlightCover);
         }
     }
+
+//    private void removeCoachCoverWithAnimation() {
+//        ObjectAnimator animator = ObjectAnimator.ofFloat(mHighlightCover, "alpha", 1.0f, 0.0f);
+//        animator.setDuration(300);
+//        animator.addListener(new AnimatorListenerAdapter() {
+//            @Override
+//            public void onAnimationEnd(Animator animation) {
+//                super.onAnimationEnd(animation);
+//                removeCoachCover();
+//            }
+//        });
+//    }
 
     private void highlight() {
         RectF holeRect = getHoleRect();
@@ -330,6 +344,19 @@ public class Coach implements HighlightCover.OnEventListener {
     @Override
     public void onClickHighlight() {
         coachNext();
+    }
+
+    public static class NullCoach extends Coach {
+        private NullCoach() {
+            super(null, null);
+        }
+
+        private NullCoach(Activity activity, TargetSpecs targetSpecs) {
+            super(activity, targetSpecs);
+        }
+
+        @Override public void proceed() { }
+        @Override public void onClickHighlight() { }
     }
 
     public static abstract class Callback {
