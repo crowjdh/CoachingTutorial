@@ -1,4 +1,4 @@
-package com.yooiistudios.coachingtutorial;
+package com.yooiistudios.coachingtutorial.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.widget.FrameLayout;
+
+import com.yooiistudios.coachingtutorial.DebugSettings;
 
 /**
  * Created by Dongheyon Jeong in CoachingTutorial from Yooii Studios Co., LTD. on 15. 7. 17.

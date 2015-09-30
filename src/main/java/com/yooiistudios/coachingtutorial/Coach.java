@@ -13,6 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import com.yooiistudios.coachingtutorial.models.TargetSpec;
+import com.yooiistudios.coachingtutorial.models.TargetSpecs;
+import com.yooiistudios.coachingtutorial.views.HighlightCover;
+import com.yooiistudios.coachingtutorial.views.SpeechBubble;
+
 import java.lang.ref.WeakReference;
 
 /**
@@ -29,6 +34,7 @@ public class Coach {
 
     private WeakReference<Activity> mActivityWeakReference;
     private TargetSpecs mTargetSpecs;
+    private TargetSpec mCurrentTargetSpec;
     private HighlightCover mHighlightCover;
     private Point mMaxSpeechBubbleSize = new Point();
     private Callback mCallback;
@@ -117,23 +123,26 @@ public class Coach {
     }
 
     private void coachNext() {
+        if (mCurrentTargetSpec != null) {
+            mCallback.onDone(mCurrentTargetSpec);
+        }
         if (!mTargetSpecs.hasNext()) {
             removeCoachCover();
             mCallback.notifyDone();
             // notify
             return;
         }
-        final TargetSpec targetSpec = mTargetSpecs.next();
-        final View targetView = targetSpec.views[0];
+        mCurrentTargetSpec = mTargetSpecs.next();
+        final View targetView = mCurrentTargetSpec.views[0];
         if (targetView.getWidth() > 0 && targetView.getHeight() > 0) {
-            highlight(targetSpec);
+            highlight();
         } else {
             targetView.getViewTreeObserver().addOnPreDrawListener(
                     new ViewTreeObserver.OnPreDrawListener() {
                         @Override
                         public boolean onPreDraw() {
                             targetView.getViewTreeObserver().removeOnPreDrawListener(this);
-                            highlight(targetSpec);
+                            highlight();
                             return true;
                         }
                     });
@@ -147,20 +156,20 @@ public class Coach {
         }
     }
 
-    private void highlight(TargetSpec targetSpec) {
-        RectF holeRect = getHoleRect(targetSpec);
-        showHole(targetSpec, holeRect);
-        showSpeechBubble(targetSpec, holeRect);
+    private void highlight() {
+        RectF holeRect = getHoleRect();
+        showHole(holeRect);
+        showSpeechBubble(holeRect);
     }
 
     @NonNull
-    private RectF getHoleRect(TargetSpec targetSpec) {
+    private RectF getHoleRect() {
         // TODO: consider scale, rotate, translation
         Rect tempRect = new Rect();
         RectF tempRectF = new RectF();
 
         RectF visibleRect = new RectF();
-        for (View targetView : targetSpec.views) {
+        for (View targetView : mCurrentTargetSpec.views) {
             targetView.getGlobalVisibleRect(tempRect);
             tempRectF.set(tempRect);
 
@@ -171,8 +180,8 @@ public class Coach {
         visibleRect.offset(-tempRect.left, -tempRect.top);
 
         float holePaddingDp;
-        if (targetSpec.holePaddingDp > 0) {
-            holePaddingDp = targetSpec.holePaddingDp;
+        if (mCurrentTargetSpec.holePaddingDp > 0) {
+            holePaddingDp = mCurrentTargetSpec.holePaddingDp;
         } else {
             holePaddingDp = DEFAULT_HOLE_PADDING_DP;
         }
@@ -183,42 +192,42 @@ public class Coach {
         return visibleRect;
     }
 
-    private void showHole(TargetSpec targetSpec, RectF holeRect) {
-        mHighlightCover.makeHoleAt(holeRect, targetSpec.holeType);
+    private void showHole(RectF holeRect) {
+        mHighlightCover.makeHoleAt(holeRect, mCurrentTargetSpec.holeType);
     }
 
-    private void showSpeechBubble(final TargetSpec targetSpec, final RectF holeRect) {
-        final SpeechBubble bubble = addSpeechBubbleToCoachCover(targetSpec);
+    private void showSpeechBubble(final RectF holeRect) {
+        final SpeechBubble bubble = addSpeechBubbleToCoachCover();
 
         bubble.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
                 bubble.getViewTreeObserver().removeOnPreDrawListener(this);
-                adjustSpeechBubbleOnLayoutFix(targetSpec, holeRect, bubble);
+                adjustSpeechBubbleOnLayoutFix(holeRect, bubble);
                 return false;
             }
         });
     }
 
-    private void adjustSpeechBubbleOnLayoutFix(TargetSpec targetSpec, RectF holeRect, SpeechBubble bubble) {
+    private void adjustSpeechBubbleOnLayoutFix(RectF holeRect, SpeechBubble bubble) {
         adjustBubbleHorizontally(holeRect, bubble);
-        adjustBubbleVertically(targetSpec, holeRect, bubble);
+        adjustBubbleVertically(holeRect, bubble);
     }
 
     @NonNull
-    private SpeechBubble addSpeechBubbleToCoachCover(TargetSpec targetSpec) {
+    private SpeechBubble addSpeechBubbleToCoachCover() {
         removePreviousSpeechBubble();
 
         final SpeechBubble bubble = new SpeechBubble(getActivity());
         bubble.setTag(TAG_SPEECH_BUBBLE);
-        bubble.setMessage(targetSpec.message);
+        bubble.setMessage(mCurrentTargetSpec.message);
         SpeechBubble.Direction direction =
-                targetSpec.direction.verticalBias.equals(TargetSpec.Direction.VerticalBias.TOP)
+                mCurrentTargetSpec.direction.verticalBias.equals(TargetSpec.Direction.VerticalBias.TOP)
                 ? SpeechBubble.Direction.UPWARD : SpeechBubble.Direction.DOWNWARD;
         bubble.setDirection(direction);
         bubble.setMessageViewMaxWidth(mMaxSpeechBubbleSize.x);
         bubble.setMessageViewMaxHeight(mMaxSpeechBubbleSize.y);
-        bubble.setTriangleCenterXRatio(getSpeechBubbleApexXRatio(targetSpec));
+        bubble.setTriangleCenterXRatio(getSpeechBubbleApexXRatio(mCurrentTargetSpec));
 //        if (true) {
 //            bubble.setPadding(75, 0, 15, 0);
 //            bubble.setBackgroundColor(Color.CYAN);
@@ -265,17 +274,17 @@ public class Coach {
         bubble.setLayoutParams(lp);
     }
 
-    private void adjustBubbleVertically(TargetSpec targetSpec, RectF holeRect, SpeechBubble bubble) {
+    private void adjustBubbleVertically(RectF holeRect, SpeechBubble bubble) {
         HighlightCover.LayoutParams lp = (HighlightCover.LayoutParams) bubble.getLayoutParams();
         float bubbleTop;
         float holeRadius;
-        switch (targetSpec.direction.verticalBias) {
+        switch (mCurrentTargetSpec.direction.verticalBias) {
 //                case CENTER:
 //                    bubbleTop = holeRect.centerY() - bubble.getHeight() / 2;
 //                    break;
             case BOTTOM:
                 bubbleTop = holeRect.bottom;
-                switch (targetSpec.holeType) {
+                switch (mCurrentTargetSpec.holeType) {
                     case CIRCLE_HALF_INSCRIBE:
                         holeRadius = Math.max(holeRect.width(), holeRect.height()) / 2;
                         bubbleTop += holeRadius - holeRect.height() / 2;
@@ -289,7 +298,7 @@ public class Coach {
             case TOP:
             default:
                 bubbleTop = holeRect.top - bubble.getHeight();
-                switch (targetSpec.holeType) {
+                switch (mCurrentTargetSpec.holeType) {
                     case CIRCLE_HALF_INSCRIBE:
                         holeRadius = Math.max(holeRect.width(), holeRect.height()) / 2;
                         bubbleTop -= holeRadius - holeRect.height() / 2;
@@ -316,10 +325,12 @@ public class Coach {
         }
 
         private void notifyDone() {
-            onDone(mTag);
+            onAllDone(mTag);
         }
 
-        public abstract void onDone(String tag);
+        public abstract void onDone(TargetSpec targetSpec);
+
+        public abstract void onAllDone(String tag);
     }
 
     private static class NullCallback extends Callback {
@@ -328,6 +339,9 @@ public class Coach {
         }
 
         @Override
-        public void onDone(String ignored) { }
+        public void onDone(TargetSpec ignored) { }
+
+        @Override
+        public void onAllDone(String ignored) { }
     }
 }
