@@ -1,4 +1,4 @@
-package com.yooiistudios.coachingtutorial;
+package com.yooiistudios.coachingtutorial.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -10,6 +10,8 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import com.yooiistudios.coachingtutorial.DebugSettings;
 
 /**
  * Created by Dongheyon Jeong in CoachingTutorial from Yooii Studios Co., LTD. on 15. 7. 16.

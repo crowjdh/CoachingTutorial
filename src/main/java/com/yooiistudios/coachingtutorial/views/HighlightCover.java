@@ -1,4 +1,4 @@
-package com.yooiistudios.coachingtutorial;
+package com.yooiistudios.coachingtutorial.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -6,7 +6,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.FrameLayout;
+
+import com.yooiistudios.coachingtutorial.BuildConfig;
+import com.yooiistudios.coachingtutorial.DebugSettings;
 
 /**
  * Created by Dongheyon Jeong in CoachingTutorial from Yooii Studios Co., LTD. on 15. 7. 17.
@@ -15,6 +21,9 @@ import android.widget.FrameLayout;
  *  원형으로 하이라이트를 주는 커버 레이아웃
  */
 public class HighlightCover extends FrameLayout {
+    public interface OnEventListener {
+        void onClickHighlight();
+    }
     public enum HoleType {
         CIRCLE_INSCRIBE,
         CIRCLE_HALF_INSCRIBE,
@@ -31,18 +40,23 @@ public class HighlightCover extends FrameLayout {
     private Path mInverseHolePath = new Path();
     private HoleType mHoleType;
 
+    private OnEventListener mOnEventListener;
+    private TouchRegion mStartTouchRegion;
+    private boolean mHasTouchRegionChanged = false;
+
     // Debug
     private Paint mDebugRectPaint = new Paint();
 
-    public HighlightCover(Context context) {
+    public HighlightCover(Context context, OnEventListener listener) {
         super(context);
-        init();
+        init(listener);
     }
 
-    private void init() {
+    private void init(OnEventListener listener) {
         setWillNotDraw(false);
         setBackgroundColor(BG_COLOR);
         mBackgroundPaint.setAntiAlias(true);
+        mOnEventListener = listener;
     }
 
     public void makeHoleAt(final RectF holeRect, HoleType holeType) {
@@ -143,6 +157,60 @@ public class HighlightCover extends FrameLayout {
             }
         } else {
             canvas.drawColor(mBackgroundColor);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+            mOnEventListener.onClickHighlight();
+        }
+        return determineConsume(event);
+    }
+
+    private boolean determineConsume(MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+        if (BuildConfig.DEBUG_MODE) {
+            Log.i("coachingtutorial", "x: " + x + ", y: " + y);
+            Log.i("coachingtutorial", "holeRect: " + mHoleRect.toShortString());
+            Log.i("coachingtutorial", "contains: " + mHoleRect.contains(x, y));
+        }
+
+        boolean isInHole = mHoleRect.contains(x, y);
+
+        int action = event.getActionMasked();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mStartTouchRegion = TouchRegion.fromBoolean(isInHole);
+                mHasTouchRegionChanged = false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                TouchRegion touchRegion = TouchRegion.fromBoolean(isInHole);
+                mHasTouchRegionChanged = !touchRegion.equals(mStartTouchRegion);
+                break;
+        }
+        boolean consume = mStartTouchRegion.equals(TouchRegion.OUT) || mHasTouchRegionChanged;
+        if (BuildConfig.DEBUG_MODE) {
+            Log.i("coachingtutorial", "consume: " + consume);
+        }
+
+        return consume;
+    }
+
+    private enum TouchRegion {
+        IN, OUT;
+
+        public boolean isIn() {
+            return this.equals(IN);
+        }
+
+        public boolean isOut() {
+            return !isIn();
+        }
+
+        private static TouchRegion fromBoolean(boolean isInHole) {
+            return isInHole ? TouchRegion.IN : TouchRegion.OUT;
         }
     }
 }

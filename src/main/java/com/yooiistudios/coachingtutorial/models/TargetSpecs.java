@@ -1,4 +1,4 @@
-package com.yooiistudios.coachingtutorial;
+package com.yooiistudios.coachingtutorial.models;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,10 +12,6 @@ import java.util.Queue;
  */
 public class TargetSpecs implements Iterable<TargetSpec> {
     private Queue<TargetSpec> mTargetSpecs = new LinkedList<>();
-
-    public TargetSpecs() {
-
-    }
 
     public void add(TargetSpec targetSpec) {
         mTargetSpecs.add(targetSpec);

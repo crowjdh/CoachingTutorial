@@ -1,7 +1,9 @@
-package com.yooiistudios.coachingtutorial;
+package com.yooiistudios.coachingtutorial.models;
 
 import android.support.annotation.NonNull;
 import android.view.View;
+
+import com.yooiistudios.coachingtutorial.views.HighlightCover;
 
 /**
  * Created by Dongheyon Jeong in CoachingTutorial from Yooii Studios Co., LTD. on 15. 7. 17.
@@ -42,6 +44,8 @@ public class TargetSpec {
 
     @NonNull
     public final View[] views;
+    @NonNull
+    public final String tag;
     public final String message;
     public final Direction direction;
     public final HighlightCover.HoleType holeType;
@@ -49,6 +53,7 @@ public class TargetSpec {
 
     public TargetSpec(Builder builder) {
         views = builder.views;
+        tag = builder.tag;
         message = builder.message;
         direction = builder.direction;
         holeType = builder.holeType;
@@ -58,13 +63,16 @@ public class TargetSpec {
     public static class Builder {
         @NonNull
         public final View[] views;
+        @NonNull
+        public final String tag;
         public String message = "";
         public Direction direction = Direction.TOP_LEFT;
         public HighlightCover.HoleType holeType = HighlightCover.HoleType.CIRCLE_CIRCUMSCRIBE;
         public int holePaddingDp = 7;
 
-        public Builder(@NonNull View view, View... additionalViews) {
+        public Builder(@NonNull String tag, @NonNull View view, View... additionalViews) {
             this.views = new View[additionalViews.length + 1];
+            this.tag = tag;
             this.views[0] = view;
             System.arraycopy(additionalViews, 0, this.views, 1, additionalViews.length);
         }
