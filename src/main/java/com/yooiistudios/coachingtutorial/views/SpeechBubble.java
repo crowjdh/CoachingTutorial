@@ -42,6 +42,7 @@ public class SpeechBubble extends FrameLayout {
     private float mTriangleHeight;
     private float mTriangleCenterXRatio = 0.5f;
     private float mTriangleCenterX;
+    private float mTriangleCenterXAdditive = 0.f;
     private Direction mDirection = Direction.UPWARD;
     private int mMessagePadding;
 
@@ -71,6 +72,12 @@ public class SpeechBubble extends FrameLayout {
      */
     public float getTriangleCenterX() {
         return mTriangleCenterX;
+    }
+
+    public void setTriangleCenterXAdditive(float triangleCenterXAdditive) {
+        mTriangleCenterXAdditive = triangleCenterXAdditive;
+        calculateOutlinePathWhenPossible();
+        invalidate();
     }
 
     public void setMessage(CharSequence message) {
@@ -178,7 +185,7 @@ public class SpeechBubble extends FrameLayout {
     }
 
     private float calculateTriangleCenterX(int width) {
-        return getPaddingLeft() + width * mTriangleCenterXRatio;
+        return getPaddingLeft() + width * mTriangleCenterXRatio - mTriangleCenterXAdditive;
     }
 
     private void setDrawBound(int width, int height) {
