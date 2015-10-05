@@ -6,14 +6,15 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.yooiistudios.coachingtutorial.models.TargetSpec;
 import com.yooiistudios.coachingtutorial.models.TargetSpecs;
+import com.yooiistudios.coachingtutorial.utils.Display;
+import com.yooiistudios.coachingtutorial.utils.Size;
+import com.yooiistudios.coachingtutorial.utils.UnitConverter;
 import com.yooiistudios.coachingtutorial.views.HighlightCover;
 import com.yooiistudios.coachingtutorial.views.SpeechBubble;
 
@@ -31,6 +32,7 @@ public class Coach implements HighlightCover.OnEventListener {
     private static final String TAG_COACH_COVER = "tag_coach_cover";
     private static final String TAG_SPEECH_BUBBLE = "tag_speech_bubble";
     private static final int DEFAULT_HOLE_PADDING_DP = 7;
+    private static final int DEFAULT_SPEECH_BUBBLE_WIDTH_PADDING_DP = 10;
     private static final Callback NULL_LISTENER = new NullCallback();
 
     private WeakReference<Activity> mActivityWeakReference;
@@ -187,9 +189,7 @@ public class Coach implements HighlightCover.OnEventListener {
         } else {
             holePaddingDp = DEFAULT_HOLE_PADDING_DP;
         }
-        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
-        float holePadding = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, holePaddingDp, displayMetrics);
+        float holePadding = UnitConverter.dpToPixels(getActivity(), holePaddingDp);
         visibleRect.inset(-holePadding, -holePadding);
         return visibleRect;
     }
@@ -211,9 +211,21 @@ public class Coach implements HighlightCover.OnEventListener {
         });
     }
 
-    private void adjustSpeechBubbleOnLayoutFix(RectF holeRect, SpeechBubble bubble) {
-        adjustBubbleHorizontally(holeRect, bubble);
-        adjustBubbleVertically(holeRect, bubble);
+    private void adjustSpeechBubbleOnLayoutFix(final RectF holeRect, final SpeechBubble bubble) {
+        // 향후 지원 가능성을 위해 주석으로 남겨둠
+//        if (adjustBubbleWidth(bubble)) {
+//            bubble.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//                @Override
+//                public boolean onPreDraw() {
+//                    adjustBubbleHorizontally(holeRect, bubble);
+//                    adjustBubbleVertically(holeRect, bubble);
+//                    return true;
+//                }
+//            });
+//        } else {
+            adjustBubbleHorizontally(holeRect, bubble);
+            adjustBubbleVertically(holeRect, bubble);
+//        }
     }
 
     @NonNull
@@ -267,13 +279,33 @@ public class Coach implements HighlightCover.OnEventListener {
         return apexXRatio;
     }
 
+    private boolean adjustBubbleWidth(SpeechBubble bubble) {
+        boolean adjusted = false;
+        Size displaySize = Display.getSize(bubble.getContext());
+        if (bubble.getWidth() > displaySize.width) {
+            float widthPadding = UnitConverter.dpToPixels(getActivity(),
+                    DEFAULT_SPEECH_BUBBLE_WIDTH_PADDING_DP);
+            int newBubbleWidth = displaySize.width - (int) widthPadding;
+            HighlightCover.LayoutParams lp = (HighlightCover.LayoutParams) bubble.getLayoutParams();
+            lp.width = newBubbleWidth;
+            adjusted = true;
+        }
+        return adjusted;
+    }
+
     private void adjustBubbleHorizontally(RectF holeRect, SpeechBubble bubble) {
         HighlightCover.LayoutParams lp = (HighlightCover.LayoutParams) bubble.getLayoutParams();
         float bubbleLeft = holeRect.centerX() - bubble.getTriangleCenterX();
 
-//        lp.leftMargin = Math.max((int) bubbleLeft, 0);
-        lp.leftMargin = (int) bubbleLeft;
+        float defaultPadding = UnitConverter.dpToPixels(bubble.getContext(),
+                DEFAULT_SPEECH_BUBBLE_WIDTH_PADDING_DP);
+        lp.leftMargin = Math.max((int) bubbleLeft, (int) defaultPadding);
+//        lp.leftMargin = (int) bubbleLeft;
         bubble.setLayoutParams(lp);
+
+        if (bubbleLeft < 0) {
+            bubble.setTriangleCenterXAdditive(-bubbleLeft + defaultPadding);
+        }
     }
 
     private void adjustBubbleVertically(RectF holeRect, SpeechBubble bubble) {
